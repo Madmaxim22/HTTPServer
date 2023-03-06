@@ -63,6 +63,22 @@ public class Response {
         this.body = body;
     }
 
+    public void setBodyInFile(String path) throws IOException {
+        final Path filePath = Path.of(".", "public", path);
+        final String nameFile = path.substring(1);
+        StringBuilder builder = new StringBuilder();
+        try (BufferedReader in = new BufferedReader(new FileReader(nameFile))){
+            String str;
+            while ((str = in.readLine()) != null) {
+                builder.append(str);
+            }
+        }
+        final String mimeType = Files.probeContentType(filePath);
+        addHeader("Content-Type", mimeType);
+        String content = builder.toString();
+        setBody(content);
+    }
+
     public int getStatusCode() {
         return statusCode;
     }
