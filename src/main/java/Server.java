@@ -8,6 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
     final List<String> validPaths =
@@ -18,16 +20,21 @@ public class Server {
 
     private int port;
     private final ServerSocket serverSocket;
+    private final ExecutorService service;
 
     public Server(int port) throws IOException {
         this.port = port;
         this.serverSocket = new ServerSocket(port);
+        this.service = Executors.newFixedThreadPool(64);
     }
 
     public void start() {
         while (true) {
             try {
                 Socket clientSocket = serverSocket.accept();
+                service.submit(() -> {
+                    handler(clientSocket);
+                });
             } catch (IOException e) {
                 e.printStackTrace();
             }
