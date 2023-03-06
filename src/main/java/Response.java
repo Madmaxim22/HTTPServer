@@ -13,7 +13,6 @@ public class Response {
     private String body = "";
     private int statusCode = 200;
     private String status = "Ok";
-
     public Response() {
         headers.put("Server", "naive");
         headers.put("Connection", "Close");
@@ -45,5 +44,38 @@ public class Response {
                 .append(NEW_LINE)
                 .append(body)
                 .toString();
+    }
+
+    public byte[] getByte() {
+        return message().getBytes();
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.headers.put("Content-Length", String.valueOf(body.length()));
+        this.body = body;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
