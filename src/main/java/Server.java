@@ -62,7 +62,7 @@ public class Server {
                         }
 
                     } catch (IOException e) {
-                        throw new RuntimeException(e);
+                        e.printStackTrace();
                     }
                 });
             } catch (IOException e) {
@@ -134,5 +134,11 @@ public class Server {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void addHandler(HTTPMethod method, String messages, Handler handler) {
+        Map<HTTPMethod, String> map = new HashMap<>();
+        map.put(method, messages);
+        handlerMap.put(map, handler);
     }
 }
