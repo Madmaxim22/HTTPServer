@@ -19,6 +19,14 @@ public class Response {
         headers.put("Connection", "Close");
     }
 
+    public void addHeader(String key, String value) {
+        headers.put(key, value);
+    }
+
+    public void addHeaders(Map<String, String> headers) {
+        this.headers.putAll(headers);
+    }
+
     public String message() {
         StringBuilder builder = new StringBuilder();
         builder.append("HTTP/1.1 ")
