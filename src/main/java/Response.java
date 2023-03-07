@@ -1,18 +1,20 @@
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+// TODO implement builder pattern
 public class Response {
     private final static String NEW_LINE = "\r\n";
     private final Map<String, String> headers = new HashMap<>();
     private String body = "";
     private int statusCode = 200;
     private String status = "Ok";
+
     public Response() {
         headers.put("Server", "naive");
         headers.put("Connection", "Close");
@@ -64,10 +66,9 @@ public class Response {
     }
 
     public void setBodyInFile(String path) throws IOException {
-        final Path filePath = Path.of(".", "public", path);
-        final String nameFile = path.substring(1);
+        final Path filePath = Path.of(".", path);
         StringBuilder builder = new StringBuilder();
-        try (BufferedReader in = new BufferedReader(new FileReader(nameFile))){
+        try (BufferedReader in = new BufferedReader(new FileReader(filePath.toFile()))) {
             String str;
             while ((str = in.readLine()) != null) {
                 builder.append(str);
@@ -76,6 +77,17 @@ public class Response {
         final String mimeType = Files.probeContentType(filePath);
         addHeader("Content-Type", mimeType);
         String content = builder.toString();
+        setBody(content);
+    }
+
+    public void setBodyOldSchool(String path) throws IOException {
+        final Path filePath = Path.of(".", path);
+        final String template = Files.readString(filePath);
+        final String content = template.replace(
+                "{time}",
+                LocalDateTime.now().toString());
+        final String mimeType = Files.probeContentType(filePath);
+        addHeader("Content-Type", mimeType);
         setBody(content);
     }
 

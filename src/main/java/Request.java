@@ -23,7 +23,7 @@ public class Request {
         url = firstLine[1];
         this.headers = Collections.unmodifiableMap(
                 new HashMap<>() {{
-                    for(int i = 1; i < headers.length; i++) {
+                    for (int i = 1; i < headers.length; i++) {
                         String[] headerPart = headers[i].split(HEADER_DELIMITER, 2);
                         put(headerPart[0].trim(), headerPart[1].trim());
                     }
