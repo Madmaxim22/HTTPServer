@@ -39,6 +39,7 @@ public class Server {
                 service.submit(() -> {
                     try {
                         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                        BufferedOutputStream out = new BufferedOutputStream(clientSocket.getOutputStream());
                         StringBuilder builder = new StringBuilder();
                         while (in.ready()) {
                             builder.append(in.readLine());
@@ -50,17 +51,15 @@ public class Server {
                             for (var Entry : letterEntry.getKey().entrySet()) {
                                 HTTPMethod httpMethod = Entry.getKey();
                                 String message = Entry.getValue();
-                                if (httpMethod.equals(HTTPMethod.GET)){
-                                    if (message.equals(request.getUrl())) {
-                                        Map<HTTPMethod, String> map = new HashMap<>();
-                                        map.put(httpMethod, message);
-                                        handler = handlerMap.get(map);
-                                        handler.handle(request, new BufferedOutputStream(clientSocket.getOutputStream()));
+                                if(request.getUrl().contains(message)) {
+                                    if (httpMethod.equals(HTTPMethod.GET)){
+                                        handler.handle(request, out);
+                                    } else if (httpMethod.equals(HTTPMethod.POST)) {
+                                        handler.handle(request, out);
                                     }
                                 }
                             }
                         }
-
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
