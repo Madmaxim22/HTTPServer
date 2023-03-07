@@ -65,7 +65,7 @@ public class Response {
         this.body = body;
     }
 
-    public void setBodyInFile(String path) throws IOException {
+    public void setBodyInFile(String path) {
         final Path filePath = Path.of(".", path);
         StringBuilder builder = new StringBuilder();
         try (BufferedReader in = new BufferedReader(new FileReader(filePath.toFile()))) {
@@ -73,22 +73,34 @@ public class Response {
             while ((str = in.readLine()) != null) {
                 builder.append(str);
             }
+            final String mimeType = Files.probeContentType(filePath);
+            addHeader("Content-Type", mimeType);
+            String content = builder.toString();
+            setBody(content);
+        } catch (IOException e) {
+            e.printStackTrace();
+            this.setStatusCode(404);
+            this.setStatus("Not found");
+            this.setBody("<html><head><body><h1>Resource not found</h1></body></html>");
         }
-        final String mimeType = Files.probeContentType(filePath);
-        addHeader("Content-Type", mimeType);
-        String content = builder.toString();
-        setBody(content);
     }
 
-    public void setBodyOldSchool(String path) throws IOException {
-        final Path filePath = Path.of(".", path);
-        final String template = Files.readString(filePath);
-        final String content = template.replace(
-                "{time}",
-                LocalDateTime.now().toString());
-        final String mimeType = Files.probeContentType(filePath);
-        addHeader("Content-Type", mimeType);
-        setBody(content);
+    public void setBodyOldSchool(String path) {
+        try {
+            final Path filePath = Path.of(".", path);
+            final String template = Files.readString(filePath);
+            final String content = template.replace(
+                    "{time}",
+                    LocalDateTime.now().toString());
+            final String mimeType = Files.probeContentType(filePath);
+            addHeader("Content-Type", mimeType);
+            setBody(content);
+        } catch (IOException e) {
+            e.printStackTrace();
+            this.setStatusCode(404);
+            this.setStatus("Not found");
+            this.setBody("<html><head><body><h1>Resource not found</h1></body></html>");
+        }
     }
 
     public int getStatusCode() {

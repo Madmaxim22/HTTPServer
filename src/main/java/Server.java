@@ -51,10 +51,18 @@ public class Server {
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
+                        Response response = new Response();
+                        response.setStatusCode(500);
+                        response.setStatus("Internal server error");
+                        response.setBodyInFile("/error/500.html");
                     }
                 });
             } catch (IOException e) {
                 e.printStackTrace();
+                Response response = new Response();
+                response.setStatusCode(500);
+                response.setStatus("Internal server error");
+                response.setBodyInFile("/error/500.html");
             }
         }
     }
