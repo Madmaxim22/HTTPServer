@@ -10,13 +10,22 @@ public class Main {
             try (final BufferedOutputStream out = responseStream) {
                 final String path = request.getUrl();
                 Response response = new Response();
-                if (path.contains("classic.html")) {
-                    response.setBodyOldSchool(path);
+                File f = new File("." + path);
+                if (f.exists() && !f.isDirectory()) {
+                    if (path.contains("classic.html")) {
+                        response.setBodyOldSchool(path);
+                    } else {
+                        response.setBodyInFile(path);
+                    }
                 } else {
-                    response.setBodyInFile(path);
+                    response.setStatusCode(404);
+                    response.setStatus("Not found");
+                    response.setBodyInFile("/error/404.html");
                 }
                 out.write(response.getByte());
                 out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
 
