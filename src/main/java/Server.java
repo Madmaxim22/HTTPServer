@@ -18,13 +18,15 @@ public class Server {
     public Server(int port) throws IOException {
         this.handlerMap = new ConcurrentHashMap<>();
         this.serverSocket = new ServerSocket(port);
-        this.service = Executors.newFixedThreadPool(64);
+        this.service = Executors.newFixedThreadPool(4);
     }
 
     public void start() {
+        System.out.println("Сервер запущен!");
         while (true) {
             try {
                 Socket clientSocket = serverSocket.accept();
+                System.out.println("Новое соединение: " + clientSocket.getRemoteSocketAddress());
                 service.submit(() -> {
                     try {
                         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -34,13 +36,14 @@ public class Server {
                             builder.append(in.readLine());
                             builder.append("\r\n");
                         }
+                        if (builder.isEmpty()) return;
                         Request request = new Request(builder.toString());
                         for (var letterEntry : handlerMap.entrySet()) {
                             Handler handler = letterEntry.getValue();
                             for (var Entry : letterEntry.getKey().entrySet()) {
                                 HTTPMethod httpMethod = Entry.getKey();
                                 String message = Entry.getValue();
-                                if (request.getUrl().contains(message)) {
+                                if (request.getPath().contains(message)) {
                                     if (httpMethod.equals(HTTPMethod.GET)) {
                                         handler.handle(request, out);
                                     } else if (httpMethod.equals(HTTPMethod.POST)) {

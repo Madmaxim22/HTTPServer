@@ -8,12 +8,17 @@ public class Main {
 
         server.addHandler(HTTPMethod.GET, "/public", (request, responseStream) -> {
             try (final BufferedOutputStream out = responseStream) {
-                final String path = request.getUrl();
+                final String path = request.getPath();
                 Response response = new Response();
-                File f = new File("." + path);
-                if (f.exists() && !f.isDirectory()) {
+                File file = new File("." + path);
+                if (file.exists() && !file.isDirectory()) {
                     if (path.contains("classic.html")) {
                         response.setBodyOldSchool(path);
+                    } else if (request.getUrl().contains("?")) {
+                        response.addHeader("Content-Type", "text/html; charset=utf-8    ");
+                        response.setBody(
+                                String.format("<html><body><h1>%s - Успешно добавлен</h1></body></html>"
+                                        , request.getQueryParam("login")));
                     } else {
                         response.setBodyInFile(path);
                     }
@@ -28,7 +33,6 @@ public class Main {
                 e.printStackTrace();
             }
         });
-
 
         server.start();
     }

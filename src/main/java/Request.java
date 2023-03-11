@@ -1,5 +1,12 @@
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URIBuilder;
+
+import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Request {
@@ -9,9 +16,11 @@ public class Request {
     private final static String HEADER_DELIMITER = ":";
     private final String message;
     private final HTTPMethod method;
-    private final String url;
+    private final URI url;
+    private final String path;
     private final Map<String, String> headers;
     private final String body;
+    private final List<NameValuePair> queryParams;
 
     public Request(String message) {
         this.message = message;
@@ -20,7 +29,10 @@ public class Request {
         String[] headers = head.split(NEW_LINE);
         String[] firstLine = headers[0].split(" ");
         method = HTTPMethod.valueOf(firstLine[0]);
-        url = firstLine[1];
+        url = URI.create(firstLine[1]);
+        URIBuilder builder = new URIBuilder(url, StandardCharsets.UTF_8);
+        queryParams = builder.getQueryParams();
+        path = builder.getPath();
         this.headers = Collections.unmodifiableMap(
                 new HashMap<>() {{
                     for (int i = 1; i < headers.length; i++) {
@@ -43,7 +55,19 @@ public class Request {
     }
 
     public String getUrl() {
-        return url;
+        return String.valueOf(url);
+    }
+
+    public String getQueryParam(String name) {
+        return queryParams.stream().filter(s -> s.getName().equals(name)).findFirst().get().getValue();
+    }
+
+    public List<NameValuePair> getQueryParams() {
+        return queryParams;
+    }
+
+    public String getPath() {
+        return path;
     }
 
     public Map<String, String> getHeaders() {
