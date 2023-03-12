@@ -1,6 +1,6 @@
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 public class Request {
 
@@ -12,6 +12,7 @@ public class Request {
     private final String url;
     private final Map<String, String> headers;
     private final String body;
+    private final List<NameValuePair> postParams = new ArrayList<>();
 
     public Request(String message) {
         this.message = message;
@@ -31,7 +32,19 @@ public class Request {
         );
         String bodyLength = this.headers.get("Content-Length");
         int length = bodyLength != null ? Integer.parseInt(bodyLength) : 0;
-        this.body = parts.length > 1 ? parts[1].trim().substring(0, length) : "";
+        this.body = length > 1 ? URLDecoder.decode(parts[1].trim().substring(0, length), StandardCharsets.UTF_8) : "";
+        if (!this.body.isEmpty()) {
+            try {
+                String[] bodyParts = body.split("&");
+                for (String part : bodyParts) {
+                    String[] param = part.split("=", 2);
+                    NameValuePair nameValuePair = new NameValuePair(param[0], param[1]);
+                    postParams.add(nameValuePair);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public String getMessage() {
@@ -52,5 +65,13 @@ public class Request {
 
     public String getBody() {
         return body;
+    }
+
+    public List<NameValuePair> getPostParams() {
+        return postParams;
+    }
+
+    public String getPostParam(String name) {
+        return postParams.stream().filter(s -> s.getName().equals(name)).findFirst().get().getValue();
     }
 }

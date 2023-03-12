@@ -17,7 +17,7 @@ public class Response {
 
     public Response() {
         headers.put("Server", "naive");
-        headers.put("Connection", "Close");
+//        headers.put("Connection", "Close");
     }
 
     public void addHeader(String key, String value) {
